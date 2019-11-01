@@ -1,0 +1,45 @@
+#! /usr/bin/env bash
+
+function usage {
+    echo "usage: hbase command"
+    echo "| commands: "
+    echo "|   import table path_to_dump    import data from dump"
+    echo "|   drop table                   disable and drop table"
+    echo "|   export                       export data to dump"
+    echo "|   start                        start hbase"
+    echo "|   stop                         stop hbase"
+    echo "----------------------------------------------------------------"
+    echo "| flags: "
+    echo "|    -c                          execute command in hbase shell (table names have to be quoted like so: \'table_name\')"
+    exit 1
+}
+
+
+O_PWD=$(pwd)
+cd /home/testuser/opt/hbase-1.4.10-bin/hbase-1.4.10/bin
+
+if [ "$1" == "start" ]; then
+    ./start-hbase.sh
+elif [ "$1" == "stop" ]; then
+    stop-hbase.sh
+elif [ "$1" == "shell" ]; then
+    ./hbase shell
+elif [ "$1" == "import" ]; then
+    if [ -n $2 ] && [ -n $3 ]; then
+        ./hbase org.apache.hadoop.hbase.mapreduce.Import $2 $O_PWD/$3
+    else
+        echo "Please privide table name and directory with hbase dump"
+    fi
+elif [ "$1" == "export" ]; then
+    echo "not implemented"
+elif [ "$1" == "drop" ]; then
+    echo "disable '$2'" | ./hbase shell -n
+    echo "drop '$2'" | ./hbase shell -n 
+elif [ "$1" == "-c" ]; then
+    echo "${@:2}" | ./hbase shell -n 
+else
+    usage
+fi
+
+
+
